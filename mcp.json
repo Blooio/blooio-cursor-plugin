@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "blooio": {
+      "url": "https://mcp.blooio.com/v4",
+      "headers": {
+        "Authorization": "Bearer ${BLOOIO_API_KEY}"
+      }
+    }
+  }
+}

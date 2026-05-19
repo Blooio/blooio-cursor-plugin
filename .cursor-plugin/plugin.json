@@ -1,0 +1,33 @@
+{
+  "name": "blooio",
+  "displayName": "Blooio",
+  "version": "1.0.0",
+  "description": "Send iMessages, RCS, and SMS from Cursor with Blooio. Bundles the Blooio MCP server, skills, rules, and agents to build, debug, and ship iMessage automations against the Blooio v2 REST API.",
+  "author": {
+    "name": "Blooio",
+    "email": "support@blooio.com"
+  },
+  "homepage": "https://blooio.com",
+  "repository": "https://github.com/blooio/blooio-cursor-plugin",
+  "license": "MIT",
+  "keywords": [
+    "blooio",
+    "imessage",
+    "messaging",
+    "sms",
+    "rcs",
+    "mcp",
+    "automation",
+    "webhooks",
+    "api"
+  ],
+  "category": "developer-tools",
+  "tags": [
+    "blooio",
+    "imessage",
+    "messaging",
+    "mcp",
+    "api"
+  ],
+  "logo": "assets/logo.svg"
+}

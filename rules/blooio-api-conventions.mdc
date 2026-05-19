@@ -1,0 +1,20 @@
+---
+description: Conventions for writing code against the Blooio v2 API or MCP — auth, encoding, idempotency, error handling, secrets.
+alwaysApply: true
+---
+
+blooio-api-conventions:
+
+When you write or review code that calls the Blooio API (`https://backend.blooio.com/v2/api`) or the Blooio MCP (`https://mcp.blooio.com/v4`), follow these rules. Refer to the `blooio-api`, `blooio-messaging`, `blooio-webhooks`, and `blooio-contacts-groups` skills for full detail.
+
+- **Phone numbers are E.164 with a leading `+`.** Never accept user input as-is — normalize to E.164 (libphonenumber-js or similar) before sending.
+- **URL-encode every path parameter that may contain `+`, `@`, or `,`.** `chatId` is the most common offender. Use `encodeURIComponent`. Don't hand-roll string replacement.
+- **Always pass `Idempotency-Key`** on `POST /chats/{chatId}/messages`. Use a stable, deterministic key (UUIDv4 per logical send, or a domain-meaningful key like `welcome-${userId}`) so retries don't double-send.
+- **Switch on the response `code` field, not `message`.** The human-readable string can change. Specifically handle `inbound_only_no_prior_inbound`, `outbound_limit_reached`, `new_conversation_limit_reached`, and `attachment_first_message_not_allowed` with informative user-facing errors.
+- **Treat `202 Accepted` as queued, not delivered.** Drive UI off webhook events (`message.delivered`, `message.failed`) or poll `GET /chats/{chatId}/messages/{messageId}/status`.
+- **Verify webhook signatures on raw bytes.** Read the request body as `Buffer`/`bytes` before any JSON parser touches it; HMAC against `signing_secret` with `crypto.timingSafeEqual`. Fail closed on mismatch.
+- **Webhook handlers must be idempotent and fast.** Dedupe on `(message_id, event)`. Acknowledge with 2xx in <5s; do real work async.
+- **Never log, commit, or echo `BLOOIO_API_KEY`, signing secrets, or webhook bodies in full.** Read keys from env vars (`process.env.BLOOIO_API_KEY`, `${BLOOIO_API_KEY}` in `mcp.json`). Keys look like `bl_live_…`.
+- **Use the MCP for chat-driven automation, the REST API for application code.** Polls, reactions, group icons, chat backgrounds, FindMy location, FaceTime, and phone-number lookup are REST-only.
+- **Page lists by `total`, not by polling until empty.** `GET /contacts`, `/groups`, `/chats`, etc. all expose `pagination.total`.
+- **Handle `503 No active number available` as a user-actionable error.** It usually means a Mac is offline/locked — don't retry blindly, surface it.
